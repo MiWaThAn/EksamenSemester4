@@ -1,0 +1,30 @@
+﻿using MediatR;
+using ProductCatalogService.Entities;
+
+namespace ProductCatalogService.Features.CreateProduct
+{
+    public record CreateProductCommand : IRequest<Product>
+    {
+        public string Name { get; init; }
+        public double Price { get; init; }
+        public string Description { get; init; }
+        public string ImageUrl { get; init; }
+        public string Size { get; init; }
+        public string Color { get; init; }
+        public string Category { get; init; }
+        public string Barcode { get; init; }
+
+        
+        public CreateProductCommand(string name, double price, string description, string imageUrl, string size, string color, string category, string barcode)
+        {
+            Name = name?.Trim() ?? string.Empty;
+            Price = price;
+            Description = description?.Trim() ?? string.Empty;
+            ImageUrl = imageUrl?.Trim() ?? string.Empty;
+            Size = size?.Trim() ?? string.Empty;
+            Color = color?.Trim() ?? string.Empty;
+            Category = category?.Trim() ?? string.Empty;
+            Barcode = barcode?.Trim() ?? string.Empty;
+        }
+    }
+}

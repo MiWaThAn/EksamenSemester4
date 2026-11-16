@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Shared/">
+    <File Path="shared/pubsub.yaml" />
+    <File Path="shared/statestore.yaml" />
+  </Folder>
   <Project Path="ApiGateway/ApiGateway.csproj" Id="20630090-8cb1-4129-a3bc-63a6688f7870" />
   <Project Path="Apphost/Apphost.csproj" Id="cc60600a-25a4-4d92-a609-02d407b1fc62" />
   <Project Path="AuthService/AuthService.csproj" />
