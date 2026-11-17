@@ -16,7 +16,7 @@
         protected Product() { } //For EF Core only
         private Product(string name, double price, string description, string? imageUrl, string size, string color, string category, string barcode)
         {
-           UpdateName(name);
+            UpdateName(name);
             UpdatePrice(price);
             UpdateDescription(description);
             UpdateImageUrl(imageUrl);
