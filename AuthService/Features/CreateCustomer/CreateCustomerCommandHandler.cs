@@ -1,13 +1,13 @@
 ﻿using AuthService.Entities;
 using AuthService.Entities.ValueObjects;
-using AuthService.Features.Shared.Customer;
+using AuthService.Features.Shared.Auth;
 using AuthService.Repositories;
 using AuthService.Shared.Security;
 using MediatR;
 
 namespace AuthService.Features.CreateCustomer
 {
-    public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, CustomerAuthDTO>
+    public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, AuthDto>
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IPasswordHasher _passwordHasher;
@@ -18,12 +18,12 @@ namespace AuthService.Features.CreateCustomer
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<CustomerAuthDTO> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
+        public async Task<AuthDto> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
             
             var name = Name.Create(request.FirstName, request.LastName);
 
-            var existingCustomer = await _customerRepository.GetByEmailAsync(request.Email);
+            var existingCustomer = await _customerRepository.GetByEmailAsync(request.Email, cancellationToken);
 
             //I should probably change this to a result instead of throwing an exception, will be done if I have time.
             if (existingCustomer != null)
@@ -47,10 +47,11 @@ namespace AuthService.Features.CreateCustomer
 
             await _customerRepository.SaveChangesAsync();
 
-            return new CustomerAuthDTO(
+            return new AuthDto(
                 Id: customer.Id,
                 Email: customer.Email,
-                Role: customer.Role.ToString()
+                Role: customer.Role.ToString(),
+                Permissions: null
             );
         }
     }

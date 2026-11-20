@@ -23,9 +23,9 @@ namespace AuthService.Repositories
             return await _context.Users.FindAsync(id);
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
         }
 
         public Task UpdateAsync(User user)

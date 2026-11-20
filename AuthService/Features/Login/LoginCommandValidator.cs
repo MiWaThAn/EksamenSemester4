@@ -1,12 +1,10 @@
-﻿using AuthService.Features.Shared.Customer;
-using FluentValidation;
-using MediatR;
+﻿using FluentValidation;
 
-namespace AuthService.Features.LoginCustomer
+namespace AuthService.Features.Login
 {
-    public class LoginCustomerCommandValidator : AbstractValidator<LoginCustomerCommand>
+    public class LoginCommandValidator : AbstractValidator<LoginCommand>
     {
-        public LoginCustomerCommandValidator()
+        public LoginCommandValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("E-mail er påkrævet.")
@@ -14,6 +12,7 @@ namespace AuthService.Features.LoginCustomer
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Adgangskode er påkrævet.");
+
         }
     }
 }

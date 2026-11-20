@@ -1,7 +1,10 @@
 using AuthService.Data;
+using AuthService.Features.Shared.Auth.RefreshTokenHelper;
 using AuthService.Repositories;
+using AuthService.Repositories.RefreshTokenRepository;
 using AuthService.Shared.Behaviors;
 using AuthService.Shared.Security;
+using AuthService.Shared.Security.RefreshTokenHasher;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,9 +44,13 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+builder.Services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

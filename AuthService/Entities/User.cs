@@ -13,8 +13,8 @@ namespace AuthService.Entities
         public Role Role { get; protected set; }
         public string PasswordHashed { get; private set; }
         public bool MfaEnabled { get; private set; }
+     
 
-        
         protected User() { } // For EF Core
 
         public User(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, Role role)

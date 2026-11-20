@@ -6,7 +6,7 @@ namespace AuthService.Repositories
     {
         Task AddAsync(User user);
         Task<User?> GetByIdAsync(Guid id);
-        Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
         
         Task UpdateAsync(User user);
         Task DeleteAsync(User user);

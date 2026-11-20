@@ -1,5 +1,6 @@
 ﻿using AuthService.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 
 namespace AuthService.Data
@@ -11,6 +12,7 @@ namespace AuthService.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Employee> Employees => Set<Employee>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,7 +32,7 @@ namespace AuthService.Data
                     name.Property(n => n.FirstName).HasColumnName("FirstName").IsRequired().HasMaxLength(100);
                     name.Property(n => n.LastName).HasColumnName("LastName").IsRequired().HasMaxLength(100);
                 });
-
+                entity.Property(e => e.Role).HasConversion<string>().HasMaxLength(50).IsRequired();
                 entity.Property(u => u.PasswordHashed).IsRequired();
                 entity.Property(u => u.CreatedAt).IsRequired();
             });
@@ -68,16 +70,49 @@ namespace AuthService.Data
                 entity.ToTable("Employees");
 
                 entity.Property(e => e.Department).HasConversion<string>().HasMaxLength(50).IsRequired();
-                entity.Property(e => e.Role).HasConversion<string>().HasMaxLength(50).IsRequired();
 
-               
+
+
+                var permissionComparer = new ValueComparer<List<string>>(
+                        (a, b) => (a ?? new List<string>()).SequenceEqual(b ?? new List<string>()),
+                         c => (c ?? new List<string>()).Aggregate(0, (acc, item) => HashCode.Combine(acc, item.GetHashCode())),
+                        c => (c ?? new List<string>()).ToList());
+
                 entity.Property<List<string>>("_permissions")
                     .HasColumnName("Permissions")
                     .HasConversion(
-                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                        v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
-                    );
+                        v => JsonSerializer.Serialize(v ?? new List<string>(), (JsonSerializerOptions?)null),
+                        v => string.IsNullOrWhiteSpace(v)
+                            ? new List<string>()
+                            : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>())
+                    .Metadata.SetValueComparer(permissionComparer);
             });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.ToTable("RefreshTokens");
+                entity.HasKey(rt => rt.Id);
+
+                entity.Property(rt => rt.TokenHash)
+                    .IsRequired()
+                    .HasMaxLength(128);
+
+                entity.HasIndex(rt => rt.TokenHash)
+                    .IsUnique();
+
+                entity.HasIndex(rt => rt.UserId);
+
+                entity.Property(rt => rt.CreatedAt).IsRequired();
+                entity.Property(rt => rt.ExpiresAt).IsRequired();
+
+                entity.HasOne(rt => rt.User)
+                    .WithMany()
+                    .HasForeignKey(rt => rt.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
+
         }
     }
 }

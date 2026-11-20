@@ -1,6 +1,6 @@
-﻿using AuthService.Shared.Security;
+﻿using AuthService.Features.Login;
+using AuthService.Shared.Security;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.Controllers
@@ -26,7 +26,7 @@ namespace AuthService.Controllers
                 var authDto = await _mediator.Send(command, cancellationToken);
                 var token = _jwtTokenService.GenerateToken(authDto);
 
-                return Ok(new { token });
+                return Ok(new { token, RefreshToken = authDto.RefreshToken });
             }
             catch (FluentValidation.ValidationException ex)
             {

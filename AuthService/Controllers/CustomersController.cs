@@ -1,6 +1,5 @@
 ﻿using AuthService.Features.CreateCustomer;
 using AuthService.Features.DeleteCustomer;
-using AuthService.Features.LoginCustomer;
 using AuthService.Features.UpdateCustomerProfile;
 using AuthService.Shared.Security;
 using MediatR;
@@ -29,8 +28,8 @@ namespace AuthService.Controllers
         {
             try
             {
-                var customerAuthDTO = await _mediator.Send(command);
-                var token = _jwtTokenService.GenerateCustomerToken(customerAuthDTO);
+                var AuthDto = await _mediator.Send(command);
+                var token = _jwtTokenService.GenerateToken(AuthDto);
 
                 return StatusCode(StatusCodes.Status201Created, new { token });
             }
@@ -46,26 +45,6 @@ namespace AuthService.Controllers
 
         }
         
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginCustomerCommand command)
-        {
-            try
-            {
-                var customerAuthDTO = await _mediator.Send(command);
-                var token = _jwtTokenService.GenerateCustomerToken(customerAuthDTO);
-
-                return Ok(new { token });
-            }
-            catch (FluentValidation.ValidationException ex)
-            {
-                var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
-                return BadRequest(new { Message = "Validering fejlede", Errors = errors });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { Message = ex.Message });
-            }
-        }
         [Authorize]
         [HttpPut("{id:guid}/profile")]
         public async Task<IActionResult> UpdateProfile(Guid id, [FromBody] UpdateCustomerProfileCommand request, CancellationToken cancellationToken)

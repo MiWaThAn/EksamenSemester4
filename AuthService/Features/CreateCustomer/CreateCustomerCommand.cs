@@ -1,9 +1,9 @@
 ﻿using AuthService.Entities;
-using AuthService.Features.Shared.Customer;
+using AuthService.Features.Shared.Auth;
 using MediatR;
 namespace AuthService.Features.CreateCustomer
 {
-    public record CreateCustomerCommand : IRequest<CustomerAuthDTO>
+    public record CreateCustomerCommand : IRequest<AuthDto>
     {
         public string FirstName { get; init; }
         public string LastName { get; init; }
