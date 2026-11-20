@@ -23,7 +23,7 @@ namespace ProductCatalogService.Features.GetProductById
                 return null;
             }
 
-            // This will convert the Product entity to the ProductResponse DTO
+           
             return product.ToResponse();
         }
     }

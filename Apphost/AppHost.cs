@@ -10,6 +10,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var sharedPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "shared"));
 var daprResources = ImmutableHashSet.Create(sharedPath);
 
+
 // This is for my database
 var sql = builder.AddSqlServer("sql")
     .WithLifetime(ContainerLifetime.Persistent)
@@ -20,6 +21,14 @@ var orderDb = sql.AddDatabase("orderdb");
 var productService = sql.AddDatabase("productdb");
 var warehouseDb = sql.AddDatabase("warehousedb");
 
+//This is for setting up the JWT settings for the AuthService project, and other projects..
+var jwtSecret = builder.AddParameter("JwtSettings-Secret", secret: true);
+var jwtIssuer = builder.AddParameter("JwtSettings-Issuer");
+var jwtAudience = builder.AddParameter("JwtSettings-Audience");
+
+
+
+
 
 //This is for setting up the Authservice project, including its own database and dapr sidecar.
 var authService = builder.AddProject<Projects.AuthService>("authservice")
@@ -29,7 +38,10 @@ var authService = builder.AddProject<Projects.AuthService>("authservice")
         DaprHttpPort = 3501,
         ResourcesPaths = daprResources
     }).WithReference(authDb)
-    .WaitFor(authDb);
+    .WaitFor(authDb)
+    .WithEnvironment("JwtSettings__Secret", jwtSecret)
+    .WithEnvironment("JwtSettings__Issuer", jwtIssuer)
+    .WithEnvironment("JwtSettings__Audience", jwtAudience);
 
 //This is for setting up the OrderService project, including its own database and dapr sidecar.
 var orderService = builder.AddProject<Projects.OrderService>("orderservice").WithDaprSidecar(new DaprSidecarOptions
@@ -38,7 +50,10 @@ var orderService = builder.AddProject<Projects.OrderService>("orderservice").Wit
     DaprHttpPort = 3502,
     ResourcesPaths = daprResources
 }).WithReference(orderDb)
-    .WaitFor(orderDb);
+    .WaitFor(orderDb)
+    .WithEnvironment("JwtSettings__Secret", jwtSecret)
+    .WithEnvironment("JwtSettings__Issuer", jwtIssuer)
+    .WithEnvironment("JwtSettings__Audience", jwtAudience); 
 
 //This is for setting up the ProductCatalogService project, including its own database and dapr sidecar.
 var productCatalogService = builder.AddProject<Projects.ProductCatalogService>("productcatalogservice").WithDaprSidecar(new DaprSidecarOptions
@@ -48,7 +63,10 @@ var productCatalogService = builder.AddProject<Projects.ProductCatalogService>("
     ResourcesPaths = daprResources
 })
     .WithReference(productService)
-    .WaitFor(productService);
+    .WaitFor(productService)
+    .WithEnvironment("JwtSettings__Secret", jwtSecret)
+    .WithEnvironment("JwtSettings__Issuer", jwtIssuer)
+    .WithEnvironment("JwtSettings__Audience", jwtAudience); 
 
 //This is for setting up the ShoppingCartService project, including its redis statestore and dapr sidecar .
 var shoppingCartService = builder.AddProject<Projects.ShoppingCartService>("shoppingcartservice").WithDaprSidecar(new DaprSidecarOptions
@@ -67,7 +85,10 @@ var warehouseService = builder.AddProject<Projects.WarehouseService>("warehouses
     ResourcesPaths = daprResources
 })
     .WithReference(warehouseDb)
-    .WaitFor(warehouseDb);
+    .WaitFor(warehouseDb)
+    .WithEnvironment("JwtSettings__Secret", jwtSecret)
+    .WithEnvironment("JwtSettings__Issuer", jwtIssuer)
+    .WithEnvironment("JwtSettings__Audience", jwtAudience);
 
 //This is for setting up the ApiGateway project, including its references to all the other services.
 var apiGateway = builder.AddProject<Projects.ApiGateway>("apigateway")

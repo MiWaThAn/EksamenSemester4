@@ -1,11 +1,14 @@
 
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ProductCatalogService.Data;
 using ProductCatalogService.Repositories;
 using ProductCatalogService.Shared.Behaviors;
 using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,26 @@ var connectionString = builder.Configuration.GetConnectionString("productdb")
                        ?? throw new InvalidOperationException("Connection string 'productdb' not found.");
 builder.Services.AddDbContext<ProductCatalogContext>(options =>
     options.UseSqlServer(connectionString));
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JwtSettings:Secret missing");
+var key = Encoding.UTF8.GetBytes(secretKey);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true, // Tjekker at tokenet ikke er udløbet
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+    });
+
 
 builder.AddServiceDefaults();
 
@@ -48,7 +71,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-
+app.UseAuthentication();
 
 app.UseAuthorization();
 using (var scope = app.Services.CreateScope())

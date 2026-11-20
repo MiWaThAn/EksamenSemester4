@@ -39,5 +39,10 @@ namespace AuthService.Repositories
             _context.Users.Remove(user);
             return Task.CompletedTask;
         }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

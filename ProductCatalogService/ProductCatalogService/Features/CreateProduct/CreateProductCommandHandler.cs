@@ -1,10 +1,11 @@
 ﻿using MediatR;
 using ProductCatalogService.Entities;
+using ProductCatalogService.Features.Shared;
 using ProductCatalogService.Repositories;
 
 namespace ProductCatalogService.Features.CreateProduct
 {
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Product>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductResponse>
     {
         private readonly IProductRepository _productRepository;
 
@@ -13,7 +14,7 @@ namespace ProductCatalogService.Features.CreateProduct
             _productRepository = productRepository;
         }
 
-        public async Task<Product> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task<ProductResponse> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
 
             Product? existingProduct = await _productRepository.GetByBarcodeAsync(request.Barcode);
@@ -38,7 +39,7 @@ namespace ProductCatalogService.Features.CreateProduct
             await _productRepository.AddAsync(product);
             await _productRepository.SaveChangesAsync();
 
-            return product;
+            return product.ToResponse();
         }
     }
 }

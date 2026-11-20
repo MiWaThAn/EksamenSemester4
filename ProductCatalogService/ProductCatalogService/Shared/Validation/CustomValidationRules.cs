@@ -40,10 +40,10 @@ namespace ProductCatalogService.Shared.Validation
                     isMaliciousOrUnsafe = true;
                 };
 
-                // Kør rensningen (den tjekker mod tilladte tags)
+                
                 sanitizer.Sanitize(text);
 
-                // Hvis der blev fundet ulovlige ting, returnerer vi false -> validation fejer!
+               
                 return !isMaliciousOrUnsafe;
 
             }).WithMessage("Teksten indeholder skadelig eller ikke-tilladt HTML (f.eks. scripts eller ulovlige tags).");

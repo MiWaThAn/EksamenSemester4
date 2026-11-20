@@ -9,6 +9,8 @@ namespace AuthService.Repositories
     {
         public EmployeeRepository(AuthContext context) : base(context) { }
 
+
+
         public async Task<IEnumerable<Employee>> GetByDepartmentAsync(Department department)
         {
             return await _context.Employees.Where(e => e.Department == department).ToListAsync();

@@ -28,8 +28,8 @@ namespace ProductCatalogService.Controllers
         {
             try
             {
-                var product = await _mediator.Send(command);
-                return Ok(product);
+                var productResponse = await _mediator.Send(command);
+                return Ok(productResponse);
             }
             catch (FluentValidation.ValidationException ex)
             {

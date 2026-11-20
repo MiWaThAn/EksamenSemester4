@@ -1,11 +1,11 @@
-﻿using AuthService.Entities.ValueObjects;
-
+﻿using AuthService.Entities.Enums;
+using AuthService.Entities.ValueObjects;
 namespace AuthService.Entities
 {
     public class Customer : User
     {
         public string Username { get; private set; }
-        public string PhoneNumber { get; private set; }
+        public string? PhoneNumber { get; private set; }
         //Birthday is optional, as it would be a part of discounts.
         public DateTime? Birthday {get; private set; }
         public Address? DefaultAddress { get; private set; }
@@ -13,18 +13,16 @@ namespace AuthService.Entities
         
         protected Customer() { } // For EF Core
 
-        private Customer(Name name, string email, string passwordHashed, bool mfaEnabled, string username, string phoneNumber, DateTime? birthday, Address? defaultAddress, PaymentMethodToken? paymentInformation)
-            : base(name, email, passwordHashed, mfaEnabled)
+        private Customer(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, string username, string? phoneNumber)
+            : base(firstName, lastName, email, passwordHashed, mfaEnabled, Role.Customer)
         {
             UpdateUsername(username);
             UpdatePhoneNumber(phoneNumber);
-            UpdateBirthday(birthday);
-            UpdateDefaultAddress(defaultAddress);
-            UpdatePaymentInformation(paymentInformation);
         }
-        public static Customer Create(Name name, string email, string passwordHashed, bool mfaEnabled, string username, string phoneNumber, DateTime? birthday, Address? defaultAddress, PaymentMethodToken? paymentInformation)
+
+        public static Customer Create(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, string username, string? phoneNumber)
         {
-            return new Customer(name, email, passwordHashed, mfaEnabled, username, phoneNumber, birthday, defaultAddress, paymentInformation);
+            return new Customer(firstName, lastName, email, passwordHashed, mfaEnabled, username, phoneNumber);
         }
 
         public void UpdateUsername(string username)
@@ -35,10 +33,8 @@ namespace AuthService.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdatePhoneNumber(string phoneNumber)
+        public void UpdatePhoneNumber(string? phoneNumber)
         {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-                throw new ArgumentException("Phone number cannot be empty.", nameof(phoneNumber));
             PhoneNumber = phoneNumber;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -49,15 +45,21 @@ namespace AuthService.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateDefaultAddress(Address? defaultAddress)
+        public void UpdateDefaultAddress(string streetNumber, string street, string city, string zipCode, string country)
         {
-            DefaultAddress = defaultAddress;
+            DefaultAddress = Address.Create(streetNumber,street, city, zipCode, country);
             UpdatedAt = DateTime.UtcNow;
         }
 
         public void UpdatePaymentInformation(PaymentMethodToken? paymentInformation)
         {
             PaymentInformation = paymentInformation;
+            UpdatedAt = DateTime.UtcNow;
+        }
+        
+        public void ClearDefaultAddress()
+        {
+            DefaultAddress = null;
             UpdatedAt = DateTime.UtcNow;
         }
 

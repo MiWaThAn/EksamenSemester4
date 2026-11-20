@@ -1,4 +1,5 @@
-﻿using AuthService.Entities.ValueObjects;
+﻿using AuthService.Entities.Enums;
+using AuthService.Entities.ValueObjects;
 
 namespace AuthService.Entities
 {
@@ -9,23 +10,26 @@ namespace AuthService.Entities
         public DateTime? UpdatedAt { get; protected set; } = null;
         public Name Name { get; private set; }
         public string Email { get; private set; }
+        public Role Role { get; protected set; }
         public string PasswordHashed { get; private set; }
         public bool MfaEnabled { get; private set; }
+
         
         protected User() { } // For EF Core
 
-        public User(Name name, string email, string passwordHashed, bool mfaEnabled)
+        public User(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, Role role)
         {
-            UpdateName(name);
+            UpdateName(firstName, lastName);
             UpdateEmail(email);
             UpdatePasswordHashed(passwordHashed);
             UpdateMfaEnabled(mfaEnabled);
+            UpdateRole(role);
             CreatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateName(Name name)
+        public void UpdateName(string firstName, string lastName)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = Name.Create(firstName, lastName);
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -48,6 +52,13 @@ namespace AuthService.Entities
         public void UpdateMfaEnabled(bool mfaEnabled)
         {
             MfaEnabled = mfaEnabled;
+            UpdatedAt = DateTime.UtcNow;
+        }
+        
+        private void UpdateRole(Role role)
+        {
+            
+            Role = role;
             UpdatedAt = DateTime.UtcNow;
         }
 

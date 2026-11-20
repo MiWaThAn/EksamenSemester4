@@ -46,6 +46,7 @@ namespace AuthService.Data
                 
                 entity.OwnsOne(c => c.DefaultAddress, address =>
                 {
+                    address.Property(a => a.StreetNumber).HasColumnName("Address_StreetNumber").HasMaxLength(20);
                     address.Property(a => a.Street).HasColumnName("Address_Street").HasMaxLength(150);
                     address.Property(a => a.City).HasColumnName("Address_City").HasMaxLength(100);
                     address.Property(a => a.ZipCode).HasColumnName("Address_ZipCode").HasMaxLength(20);

@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using ProductCatalogService.Entities;
+using ProductCatalogService.Features.Shared;
 
 namespace ProductCatalogService.Features.CreateProduct
 {
-    public record CreateProductCommand : IRequest<Product>
+    public record CreateProductCommand : IRequest<ProductResponse>
     {
         public string Name { get; init; }
         public double Price { get; init; }
