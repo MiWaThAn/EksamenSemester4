@@ -28,11 +28,19 @@ namespace AuthService.Controllers
         {
             try
             {
-                var AuthDto = await _mediator.Send(command);
-                var token = _jwtTokenService.GenerateToken(AuthDto);
+                var userAgent = Request.Headers.UserAgent.ToString();
+                var commandWithUserAgent = command with { UserAgent = userAgent };
+                var authDto = await _mediator.Send(commandWithUserAgent);
+                
+                var token = _jwtTokenService.GenerateToken(authDto);
 
-                return StatusCode(StatusCodes.Status201Created, new { token });
+                return StatusCode(StatusCodes.Status201Created, new { token,  refreshToken = authDto.RefreshToken  });
             }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Message = ex.Message });
+            }
+
             catch (FluentValidation.ValidationException ex)
             {
                 var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
@@ -53,9 +61,11 @@ namespace AuthService.Controllers
             {
                 return Forbid();
             }
+            
             try
             {
-                var updated = await _mediator.Send(request, cancellationToken);
+                var command = request with { Id = id };
+                var updated = await _mediator.Send(command, cancellationToken);
                 if (!updated)
                 {
                     return NotFound(new { Message = $"Kunde med ID '{id}' blev ikke fundet." });

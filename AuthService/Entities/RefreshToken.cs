@@ -45,17 +45,17 @@
             
         }
 
-        private void ShortenUserAgentIfTooLong(string userAgent)
+        private void ShortenUserAgentIfTooLong(string? userAgent)
         {
-            if (UserAgent is not null && UserAgent.Length > 255)
+            if (string.IsNullOrWhiteSpace(userAgent))
             {
-                UserAgent = UserAgent.Substring(0, 255);
+                UserAgent = null;
+                return;
             }
-            else
-            {
-                UserAgent = userAgent;
 
-            }
+            UserAgent = userAgent.Length > 255
+                ? userAgent[..255]
+                : userAgent;
         }
 
 

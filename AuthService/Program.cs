@@ -24,6 +24,9 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JwtSettings:Secret missing");
 var key = Encoding.UTF8.GetBytes(secretKey);
 
+var refreshTokenOptions = builder.Configuration
+    .GetSection("RefreshTokenOptions")
+    .Get<RefreshTokenOptions>() ?? new RefreshTokenOptions();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -50,7 +53,7 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
-
+builder.Services.AddSingleton(refreshTokenOptions);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

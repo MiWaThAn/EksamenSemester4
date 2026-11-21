@@ -7,7 +7,7 @@ namespace AuthService.Repositories.RefreshTokenRepository
 
 
 
-        Task AddAsync(RefreshToken refreshToken);
+        Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken);
         Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<IEnumerable<RefreshToken?>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
         Task<RefreshToken?> GetByTokenHashWithUserAsync(string tokenHash, CancellationToken cancellationToken);

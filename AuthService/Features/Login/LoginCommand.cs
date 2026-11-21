@@ -5,23 +5,24 @@ namespace AuthService.Features.Login
 {
     public record LoginCommand : IRequest<AuthDto>
     {
-        public string Email { get; private set; }
-        public string Password { get; private set; }
-        public string UserAgent { get; private set; }
+        public string Email { get; init; }
+        public string Password { get; init; }
+        public string? UserAgent { get; init; }
 
         public LoginCommand(string email, string password, string userAgent)
         {
             Email = email.Trim() ?? string.Empty;
-            Password = password.Trim() ?? string.Empty;
-            ShortenUserAgent(userAgent);
+            Password = password ?? string.Empty;
+            NormalizeUserAgent(userAgent);
         }
 
-        private void ShortenUserAgent(string userAgent)
+        private static string? NormalizeUserAgent(string? userAgent)
         {
-            if (userAgent.Length > 255)
-            {
-                UserAgent = userAgent.Substring(0, 255);
-            }
+            if (string.IsNullOrWhiteSpace(userAgent))
+                return null;
+
+            var trimmed = userAgent.Trim();
+            return trimmed.Length > 255 ? trimmed[..255] : trimmed;
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using AuthService.Entities;
 using AuthService.Entities.ValueObjects;
 using AuthService.Features.Shared.Auth;
+using AuthService.Features.Shared.Auth.RefreshTokenHelper;
 using AuthService.Repositories;
 using AuthService.Shared.Security;
 using MediatR;
@@ -11,17 +12,19 @@ namespace AuthService.Features.CreateCustomer
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IRefreshTokenHelper _refreshTokenHelper;
 
-        public CreateCustomerCommandHandler(ICustomerRepository customerRepository, IPasswordHasher passwordHasher)
+        public CreateCustomerCommandHandler(ICustomerRepository customerRepository, IPasswordHasher passwordHasher, IRefreshTokenHelper refreshTokenHelper)
         {
             _customerRepository = customerRepository;
             _passwordHasher = passwordHasher;
+            _refreshTokenHelper = refreshTokenHelper;
         }
 
         public async Task<AuthDto> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
             
-            var name = Name.Create(request.FirstName, request.LastName);
+            
 
             var existingCustomer = await _customerRepository.GetByEmailAsync(request.Email, cancellationToken);
 
@@ -47,11 +50,17 @@ namespace AuthService.Features.CreateCustomer
 
             await _customerRepository.SaveChangesAsync();
 
+            var refreshToken = await _refreshTokenHelper.CreateOrUpdateRefreshToken(
+    customer.Id,
+    request.UserAgent ?? string.Empty,
+    cancellationToken);
+
             return new AuthDto(
                 Id: customer.Id,
                 Email: customer.Email,
                 Role: customer.Role.ToString(),
-                Permissions: null
+                Permissions: null,
+                RefreshToken: refreshToken
             );
         }
     }

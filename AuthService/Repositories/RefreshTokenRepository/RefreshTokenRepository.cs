@@ -14,9 +14,9 @@ namespace AuthService.Repositories.RefreshTokenRepository
         }
 
 
-        public async Task AddAsync(RefreshToken refreshToken)
+        public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
         {
-            await _context.RefreshTokens.AddAsync(refreshToken);
+            await _context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
         }
 
         public async Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken)

@@ -31,14 +31,59 @@ namespace AuthService.Features.Shared.Auth.RefreshTokenHelper
 
 
             var lifetime = DateTime.UtcNow.AddDays(_refreshTokenOptions.LifetimeDays);
-           await _refreshTokenRepository.AddAsync(new RefreshToken(userId, hashedRefreshToken, lifetime, userAgent));
-
+           await _refreshTokenRepository.AddAsync(new RefreshToken(userId, hashedRefreshToken, lifetime, userAgent), cancellationToken);
+            await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
             return refreshToken;
 
         }
-        public async Task RevokeRefreshToken(string refreshToken, CancellationToken cancellationToken)
+
+        public async Task<AuthDto> RotateRefreshTokenAsync(string rawRefreshToken, string? userAgent, CancellationToken cancellationToken)
         {
-            var hashedRefreshToken = _refreshTokenHasher.HashRawRefreshToken(refreshToken);
+            var incomingHash = _refreshTokenHasher.HashRawRefreshToken(rawRefreshToken);
+            var tokenEntity = await _refreshTokenRepository.GetByTokenHashWithUserAsync(incomingHash, cancellationToken);
+
+            if (tokenEntity is null)
+                throw new UnauthorizedAccessException("Ugyldigt refresh token.");
+
+            if (tokenEntity.IsRevoked)
+            {
+                await RevokeAllRefreshTokens(tokenEntity.UserId, cancellationToken);
+                throw new UnauthorizedAccessException("Refresh token er allerede brugt. Alle sessioner er tilbagekaldt.");
+            }
+
+            if (tokenEntity.IsExpired)
+                throw new UnauthorizedAccessException("Refresh token er udløbet.");
+
+            var newRawToken = _refreshTokenHasher.GenerateRawRefreshToken();
+            var newHashedToken = _refreshTokenHasher.HashRawRefreshToken(newRawToken);
+            var expiresAt = DateTime.UtcNow.AddDays(_refreshTokenOptions.LifetimeDays);
+
+            var nextTokenEntity = new RefreshToken(tokenEntity.UserId, newHashedToken, expiresAt, userAgent);
+            await _refreshTokenRepository.AddAsync(nextTokenEntity, cancellationToken);
+
+            tokenEntity.Revoke(newHashedToken);
+            await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
+
+            var user = tokenEntity.User;
+            IReadOnlyCollection<string>? permissions = user is Employee employee
+                ? employee.Permissions
+                : null;
+
+            return new AuthDto(
+                user.Id,
+                user.Email,
+                user.Role.ToString(),
+                permissions,
+                newRawToken
+            );
+        }
+
+
+
+
+        public async Task RevokeRefreshToken(string rawRefreshToken, CancellationToken cancellationToken)
+        {
+            var hashedRefreshToken = _refreshTokenHasher.HashRawRefreshToken(rawRefreshToken);
             var tokenEntity = await _refreshTokenRepository.GetByTokenHashWithUserAsync(hashedRefreshToken, cancellationToken);
 
             if (tokenEntity is null)

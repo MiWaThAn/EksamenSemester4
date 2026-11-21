@@ -41,7 +41,8 @@ var authService = builder.AddProject<Projects.AuthService>("authservice")
     .WaitFor(authDb)
     .WithEnvironment("JwtSettings__Secret", jwtSecret)
     .WithEnvironment("JwtSettings__Issuer", jwtIssuer)
-    .WithEnvironment("JwtSettings__Audience", jwtAudience);
+    .WithEnvironment("JwtSettings__Audience", jwtAudience)
+    .WithEnvironment("RefreshTokenOptions__LifetimeDays", "14");
 
 //This is for setting up the OrderService project, including its own database and dapr sidecar.
 var orderService = builder.AddProject<Projects.OrderService>("orderservice").WithDaprSidecar(new DaprSidecarOptions
@@ -92,10 +93,10 @@ var warehouseService = builder.AddProject<Projects.WarehouseService>("warehouses
 
 //This is for setting up the ApiGateway project, including its references to all the other services.
 var apiGateway = builder.AddProject<Projects.ApiGateway>("apigateway")
-    .WithReference(authService)
-    .WithReference(orderService)
-    .WithReference(productCatalogService)
-    .WithReference(shoppingCartService)
-    .WithReference(warehouseService);
+    .WithReference(authService).WaitFor(authService)
+    .WithReference(orderService).WaitFor(orderService)
+    .WithReference(productCatalogService).WaitFor(productCatalogService)
+    .WithReference(shoppingCartService).WaitFor(shoppingCartService)
+    .WithReference(warehouseService).WaitFor(warehouseService);
 
 builder.Build().Run();
