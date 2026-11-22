@@ -10,14 +10,17 @@ namespace AuthService.Entities
 
         protected Employee() { } // For EF Core
 
-        private Employee(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, Role role, Department department, List<string> permissions)
+        private Employee(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, Role role, Department department, List<string>? permissions = null)
             : base(firstName, lastName, email, passwordHashed, mfaEnabled, role)
         {
             UpdateDepartment(department);
-            AddPermissions(permissions);
+            if (permissions is { Count: > 0 })
+            {
+                AddPermissions(permissions);
+            }
         }
 
-        public static Employee Create(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, Role role, Department department, List<string> permissions)
+        public static Employee Create(string firstName, string lastName, string email, string passwordHashed, bool mfaEnabled, Role role, Department department, List<string>? permissions = null)
         {
             return new Employee(firstName, lastName, email, passwordHashed, mfaEnabled, role, department, permissions);
         }
@@ -48,8 +51,11 @@ namespace AuthService.Entities
         }
 
 
-        public void AddPermissions(List<string> permissions)
+        public void AddPermissions(IEnumerable<string>? permissions)
         {
+            if (permissions is null)
+                return;
+
             foreach (var permission in permissions)
             {
                 if (string.IsNullOrWhiteSpace(permission))
@@ -65,8 +71,12 @@ namespace AuthService.Entities
 
         
 
-        public void RemovePermission(List<string> permissions)
+        public void RemovePermission(IEnumerable<string>? permissions)
         {
+
+            if (permissions is null)
+                return;
+
             foreach (var permission in permissions)
             {
                 if (string.IsNullOrWhiteSpace(permission))

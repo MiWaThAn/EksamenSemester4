@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductCatalogService.Features.CreateProduct;
@@ -23,6 +24,7 @@ namespace ProductCatalogService.Controllers
             _mediator = mediator;
         }
 
+        [Authorize(Roles = "Employee,Admin,SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductCommand command)
         {
@@ -80,6 +82,7 @@ namespace ProductCatalogService.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Employee,Admin,SuperAdmin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductCommand command)
         {
@@ -98,7 +101,7 @@ namespace ProductCatalogService.Controllers
 
             return NoContent();
         }
-
+        [Authorize(Roles = "Employee,Admin,SuperAdmin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

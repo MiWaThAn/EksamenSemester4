@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddServiceDiscoveryDestinationResolver();
 
 // Add services to the container.
 
@@ -12,7 +15,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
-
+app.MapReverseProxy();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

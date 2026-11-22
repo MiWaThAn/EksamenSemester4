@@ -54,6 +54,7 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
 builder.Services.AddSingleton(refreshTokenOptions);
+builder.Services.AddScoped<AuthDbSeeding>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -77,6 +78,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
     app.MapScalarApiReference();
+
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AuthContext>();
+    var seeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeding>();
+    await dbContext.Database.MigrateAsync();
+
+    await seeder.SeedAsync(dbContext);
 }
 
 app.UseHttpsRedirection();
