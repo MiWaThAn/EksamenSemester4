@@ -75,8 +75,10 @@ var shoppingCartService = builder.AddProject<Projects.ShoppingCartService>("shop
     AppId = "shoppingcartservice",
     DaprHttpPort = 3504,
     ResourcesPaths = daprResources
-    //I will not make a database for this, as I will be using a redis statestore.
-});
+    //I will not make a database for this service, as I will be using a redis statestore.
+}).WithEnvironment("JwtSettings__Secret", jwtSecret)
+    .WithEnvironment("JwtSettings__Issuer", jwtIssuer)
+    .WithEnvironment("JwtSettings__Audience", jwtAudience);
 
 //This is for setting up the WarehouseService project, including its own database and dapr sidecar.
 var warehouseService = builder.AddProject<Projects.WarehouseService>("warehouseservice").WithDaprSidecar(new DaprSidecarOptions

@@ -1,5 +1,8 @@
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OrderService.Shared.Behaviors;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+//I'm using this to setup MediatR.
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+//I'm using this to setup FluentValidation.
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+//I'm using this to setup the ValidationBehavior for MediatR.
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
