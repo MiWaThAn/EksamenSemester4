@@ -72,7 +72,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 
     using var scope = app.Services.CreateScope();
+
     var dbContext = scope.ServiceProvider.GetRequiredService<ProductCatalogContext>();
+
     var seeder = scope.ServiceProvider.GetRequiredService<ProductDbSeeding>();
     await dbContext.Database.MigrateAsync();
 

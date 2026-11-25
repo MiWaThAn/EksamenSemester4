@@ -3,7 +3,7 @@
     public record ProductResponse(
         Guid Id,
         string Name,
-        double Price,
+        decimal Price,
         string Description,
         string? ImageUrl,
         string Size,

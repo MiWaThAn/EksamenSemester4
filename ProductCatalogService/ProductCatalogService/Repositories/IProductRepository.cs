@@ -7,9 +7,10 @@ namespace ProductCatalogService.Repositories
         //Create
         Task AddAsync(Product product);
         //Read       
-        // I din IProductRepository:
+        
         Task<(IEnumerable<Product> Items, int TotalCount)> GetAllPagedAsync(int pageNumber, int pageSize);
         Task<Product?> GetByIdAsync(Guid id);
+        Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
         Task<Product?> GetByBarcodeAsync(string barcode);
 
         //Update

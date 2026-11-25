@@ -1,0 +1,6 @@
+@OrderWorkflow_HostAddress = http://localhost:5100
+
+GET {{OrderWorkflow_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

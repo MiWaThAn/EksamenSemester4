@@ -4,7 +4,7 @@
     {
         public Guid Id { get; private set; } = Guid.NewGuid();
         public string Name { get; private set; }
-        public double Price { get; private set; }
+        public decimal Price { get; private set; }
         public string Description { get; private set; }
         public string? ImageUrl { get; private set; }
         public string Size { get; private set; }
@@ -14,7 +14,7 @@
         public bool? InStock { get; private set; }
 
         protected Product() { } //For EF Core only
-        private Product(string name, double price, string description, string? imageUrl, string size, string color, string category, string barcode)
+        private Product(string name, decimal price, string description, string? imageUrl, string size, string color, string category, string barcode)
         {
             UpdateName(name);
             UpdatePrice(price);
@@ -29,13 +29,13 @@
 
 
 
-        public static Product Create(string name, double price, string description, string? imageUrl, string size, string color, string category, string barcode)
+        public static Product Create(string name, decimal price, string description, string? imageUrl, string size, string color, string category, string barcode)
         {
             return new Product(name, price, description, imageUrl, size, color, category, barcode);
             //I should make results for my factory methods, but it'll for now be exceptions for better time management.
         }
 
-        public void Update(string name, double price, string description, string? imageUrl, string size, string color, string category)
+        public void Update(string name, decimal price, string description, string? imageUrl, string size, string color, string category)
         {
             UpdateName(name);
             UpdatePrice(price);
@@ -59,7 +59,7 @@
             }
             Name = name.Trim();
         }
-        private void UpdatePrice(double price)
+        private void UpdatePrice(decimal price)
         {
             if (price < 0)
             {

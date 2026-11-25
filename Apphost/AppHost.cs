@@ -101,4 +101,8 @@ var apiGateway = builder.AddProject<Projects.ApiGateway>("apigateway")
     .WithReference(shoppingCartService).WaitFor(shoppingCartService)
     .WithReference(warehouseService).WaitFor(warehouseService);
 
+var orderWorkflow = builder.AddProject<Projects.OrderWorkflow>("orderworkflow");
+//I NEED TO ADD REFERENCES HERE I THINK    
+
+
 builder.Build().Run();

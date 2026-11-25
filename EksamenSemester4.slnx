@@ -7,6 +7,7 @@
   <Project Path="Apphost/Apphost.csproj" Id="cc60600a-25a4-4d92-a609-02d407b1fc62" />
   <Project Path="AuthService/AuthService.csproj" />
   <Project Path="OrderService/OrderService/OrderService.csproj" />
+  <Project Path="OrderWorkflow/OrderWorkflow.csproj" />
   <Project Path="ProductCatalogService/ProductCatalogService/ProductCatalogService.csproj" />
   <Project Path="ServiceDefaults/ServiceDefaults.csproj" Id="17a14251-dcd7-4e4f-abdb-58d64c811d12" />
   <Project Path="ShoppingCartService/ShoppingCartService/ShoppingCartService.csproj" />

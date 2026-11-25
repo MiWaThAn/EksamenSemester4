@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using ShoppingCartService.Clients.ProductCatalogClient;
 using ShoppingCartService.Repositories.CartRepository;
 using ShoppingCartService.Shared.Behaviors;
 using System.Text;
@@ -34,7 +35,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.AddServiceDefaults();
 builder.Services.AddDaprClient();
 // Add services to the container.
-
+builder.Services.AddHttpClient<IProductCatalogClient, HttpProductCatalogClient>(client =>
+{
+    var daprPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3504";
+    client.BaseAddress = new Uri($"http://localhost:{daprPort}/");
+    client.DefaultRequestHeaders.Add("dapr-app-id", "productcatalogservice");
+});
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

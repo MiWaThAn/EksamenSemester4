@@ -18,6 +18,7 @@
     <ProjectReference Include="..\ApiGateway\ApiGateway.csproj" />
     <ProjectReference Include="..\AuthService\AuthService.csproj" />
     <ProjectReference Include="..\OrderService\OrderService\OrderService.csproj" />
+    <ProjectReference Include="..\OrderWorkflow\OrderWorkflow.csproj" />
     <ProjectReference Include="..\ProductCatalogService\ProductCatalogService\ProductCatalogService.csproj" />
     <ProjectReference Include="..\ShoppingCartService\ShoppingCartService\ShoppingCartService.csproj" />
     <ProjectReference Include="..\WarehouseService\WarehouseService\WarehouseService.csproj" />

@@ -19,6 +19,9 @@ namespace ProductCatalogService.Data
 
 
                 string barcode1 = "123456789";
+                
+            
+            try { 
                 var existProd1 = await _productRepository.GetByBarcodeAsync(barcode1);
                 if (existProd1 == null)
                 {
@@ -30,10 +33,17 @@ namespace ProductCatalogService.Data
                         size: "M",
                         color: "Blue",
                         category: "General",
-                        barcode: barcode1 );
+                        barcode: barcode1);
                     await _productRepository.AddAsync(product);
                 }
+            }
+            catch
+            {
+                Console.WriteLine("Ups");
+            }
 
+            try
+            {
                 string barcode2 = "987654321";
                 var existProd2 = await _productRepository.GetByBarcodeAsync(barcode2);
                 if (existProd2 == null)
@@ -49,6 +59,13 @@ namespace ProductCatalogService.Data
                         barcode: barcode2);
                     await _productRepository.AddAsync(product);
                 }
+            }
+            catch
+            {
+                Console.WriteLine("Ups");
+            }
+
+               
 
 
 

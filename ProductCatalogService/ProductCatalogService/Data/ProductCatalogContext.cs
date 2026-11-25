@@ -15,8 +15,9 @@ namespace ProductCatalogService.Data
 
             modelBuilder.Entity<Product>(entity =>
             {
+                entity.ToTable("Products");
                 entity.HasKey(p => p.Id);
-
+                entity.Property(p => p.Price).HasPrecision(18, 2);
                 entity.HasIndex(p => p.Barcode)
               .IsUnique();
 

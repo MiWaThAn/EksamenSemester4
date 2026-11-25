@@ -6,7 +6,7 @@ namespace ProductCatalogService.Features.CreateProduct
     public record CreateProductCommand : IRequest<ProductResponse>
     {
         public string Name { get; init; }
-        public double Price { get; init; }
+        public decimal Price { get; init; }
         public string Description { get; init; }
         public string ImageUrl { get; init; }
         public string Size { get; init; }
@@ -15,7 +15,7 @@ namespace ProductCatalogService.Features.CreateProduct
         public string Barcode { get; init; }
 
         
-        public CreateProductCommand(string name, double price, string description, string imageUrl, string size, string color, string category, string barcode)
+        public CreateProductCommand(string name, decimal price, string description, string imageUrl, string size, string color, string category, string barcode)
         {
             Name = name?.Trim() ?? string.Empty;
             Price = price;

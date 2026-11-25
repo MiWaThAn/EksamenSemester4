@@ -30,6 +30,7 @@ namespace AuthService.Data
             if (userCustomer == null)
             {
                 var customer = Customer.Create(
+                    
                     firstName: "Test",
                     lastName: "Kunde",
                     email: customerEmail,

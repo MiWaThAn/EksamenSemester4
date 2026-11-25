@@ -1,6 +1,7 @@
-﻿using ProductCatalogService.Data;
-using ProductCatalogService.Entities;
+﻿using Google.Api;
 using Microsoft.EntityFrameworkCore;
+using ProductCatalogService.Data;
+using ProductCatalogService.Entities;
 namespace ProductCatalogService.Repositories
 {
     public class ProductRepository : IProductRepository
@@ -24,10 +25,34 @@ namespace ProductCatalogService.Repositories
 
             return await _context.Products.FindAsync(id);
         }
+
+        public async Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            var distinctIds = ids
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToList();
+
+            if (distinctIds.Count == 0)
+            {
+                return [];
+            }
+
+            var products = await _context.Products
+                .Where(p => distinctIds.Contains(p.Id))
+                .ToListAsync(cancellationToken);
+
+            return products.AsReadOnly();
+        }
+
         public async Task<Product?> GetByBarcodeAsync(string barcode)
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.Barcode == barcode);
         }
+
+
+
+
 
         public async Task<(IEnumerable<Product> Items, int TotalCount)> GetAllPagedAsync(int pageNumber, int pageSize)
         {

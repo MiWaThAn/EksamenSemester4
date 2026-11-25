@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductCatalogService.Features.CreateProduct;
+using ProductCatalogService.Features.GetBatchByIds;
 using ProductCatalogService.Features.GetProductByBarcode;
 using ProductCatalogService.Features.GetProductById;
 using ProductCatalogService.Features.Products.DeleteProduct;
@@ -44,6 +44,30 @@ namespace ProductCatalogService.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpPost("BatchQuery")]
+        public async Task<IActionResult> GetBatchFromId([FromBody] GetBatchByIdsCommand command, CancellationToken cancellationToken)
+        {
+
+
+            if (command == null) return BadRequest("Request-body mangler.");
+            try
+            {
+                var productsInformation = await _mediator.Send(command, cancellationToken);
+                return Ok(productsInformation);
+            }
+            catch (FluentValidation.ValidationException ex)
+            {
+
+                var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
+                return BadRequest(new { Message = "ProduktId fejlede", Errors = errors });
+            }
+            
+        }
+
+
+
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)

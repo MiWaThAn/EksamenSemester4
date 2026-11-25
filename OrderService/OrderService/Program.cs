@@ -1,13 +1,20 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OrderService.Data;
 using OrderService.Shared.Behaviors;
 using System.Text;
+using OrderService.Repositories.OrderRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+var connectionString = builder.Configuration.GetConnectionString("orderdb")
+                       ?? throw new InvalidOperationException("Connection string 'orderdb' not found.");
+builder.Services.AddDbContext<OrderContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Add services to the container.
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -21,7 +28,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = true, // Tjekker at tokenet ikke er udløbet
+            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
@@ -41,8 +48,8 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 //I'm using this to setup the ValidationBehavior for MediatR.
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<OrderDbSeeding>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -53,6 +60,14 @@ app.MapDefaultEndpoints();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<OrderContext>();
+    var seeder = scope.ServiceProvider.GetRequiredService<OrderDbSeeding>();
+    await dbContext.Database.MigrateAsync();
+
+    await seeder.SeedAsync(dbContext);
 }
 
 app.UseHttpsRedirection();
